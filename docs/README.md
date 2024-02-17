@@ -5,7 +5,7 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 ## Prerequisites
 - Must fork and clone the backend repo in your local machine
 - Have Python installed (see [doc](https://wiki.python.org/moin/BeginnersGuide/Download))
-
+- Install Postman for API testing (see [doc](https://www.postman.com/downloads/))
 
 ## Setup
 
@@ -30,8 +30,8 @@ You’ll see the following output on the command line:
 		    You have unapplied migrations; your app may not work properly until they are applied.
             Run 'python manage.py migrate' to apply them.
             
-            February 15, 2024 - 15:50:53
-            Django version 5.0, using settings 'mysite.settings'
+            February 17, 2024 - 12:20:32
+            Django version 5.0, using settings 'banquest.settings'
             Starting development server at [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
             Quit the server with CONTROL-C.
 
