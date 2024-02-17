@@ -40,4 +40,11 @@ You’ll see the following output on the command line:
 - `Ctrl+click`  the  `http://127.0.0.1:8000/`  URL in the terminal output window to open your default browser to that address. If Django is installed correctly, you'll see a default page.
 - When you're done, close the browser window and stop the server using  `Ctrl+C`  as indicated in the terminal output window.
 
-## 
+##  API Testing
+1. Start the web server with the following command:
+`python manage.py runserver`
+2. [TBD] Use the template collection to access api configurations.
+3. Or simply use your test API URL to [test the request on Postman](https://www.geeksforgeeks.org/basics-of-api-testing-using-postman/).
+> *_Note_: Alternatively you can also use curl for testing API response
+> `curl --request GET --url http://127.0.0.1:8000/`*
+4.  For a new API request open an issue [here](https://github.com/dosXdev/banQuest/issues) with the appropriate API specification.
