@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-+tt@hlm__$($i98e)^3%=o5j*21md+b&$%o(n)4(1lo+4koxbd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# host ip has to be added to this list
+ALLOWED_HOSTS = ['<aws-host-public-ip>', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -37,6 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'banquest',
+    'api',
+    #'knox', # authentication [TBD]
+    #'corsheader', # cors header policy for react comm. [TBD]
 ]
 
 MIDDLEWARE = [
@@ -47,6 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'corsheaders.middleware.CorsMiddleware',
+    #'django.middleware.security.SecurityMiddleware', [TBD]
 ]
 
 ROOT_URLCONF = 'banquest.urls'
@@ -121,3 +129,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# [TBD] required for CORS
+# CORS_ALLOWED_ORIGINS = [
+#    'http://localhost:3000', # frontend port [TBD]
+# ]
+
+# [TBD] Disable rest default api view
+# REST_FRAMEWORK = {
+#     'DEFAULT_RENDERER_CLASSES':(
+#         'rest_framework.renderers.JSONRenderer',
+#                                 )
+# }
