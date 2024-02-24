@@ -19,3 +19,4 @@ def get_dummy_json_view(request):
 
     # return payload
     return JsonResponse(dummy_data)
+
