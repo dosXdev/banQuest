@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+tt@hlm__$($i98e)^3%=o5j*21md+b&$%o(n)4(1lo+4koxbd
 DEBUG = True
 
 # host ip has to be added to this list
-ALLOWED_HOSTS = ['<aws-host-public-ip>', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['<aws-host-pub-ip>', '<elb-pub-ip>', '<health-check-ip>', '<ui-host-ip>', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'banquest',
     'api',
-    #'knox', # authentication [TBD]
-    #'corsheader', # cors header policy for react comm. [TBD]
+    # 'knox', # authentication [TBD]
+    # 'corsheader', # cors header policy for react comm. [TBD]
 ]
 
 MIDDLEWARE = [
@@ -53,8 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'corsheaders.middleware.CorsMiddleware',
-    #'django.middleware.security.SecurityMiddleware', [TBD]
+    # 'corsheaders.middleware.CorsMiddleware',
+    # 'django.middleware.security.SecurityMiddleware', [TBD]
 ]
 
 ROOT_URLCONF = 'banquest.urls'
@@ -81,12 +81,12 @@ WSGI_APPLICATION = 'banquest.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
