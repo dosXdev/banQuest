@@ -1,8 +1,9 @@
-from django.shortcuts import render
-import requests
+# from django.shortcuts import render
+# import requests
 from django.http import JsonResponse
 
 # Create your views here.
+
 
 def get_dummy_json_view(request):
     # get parameters from the URL
@@ -18,3 +19,4 @@ def get_dummy_json_view(request):
 
     # return payload
     return JsonResponse(dummy_data)
+
