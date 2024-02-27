@@ -54,7 +54,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'corsheaders.middleware.CorsMiddleware',
-    # 'django.middleware.security.SecurityMiddleware', [TBD]
+    # 'django.middleware.security.SecurityMiddleware', # [TBD]
 ]
 
 ROOT_URLCONF = 'banquest.urls'
