@@ -81,12 +81,21 @@ WSGI_APPLICATION = 'banquest.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    # to be removed later
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',  # in future will come from config file
+        'NAME': 'banQuest',  # in future will come from config file
+        'USER': 'postgres', # in future will come from config file
+        'PASSWORD': 'sneh@123',  # in future will come from config file
+        'HOST': '172.28.128.1',  # ipv4 address of host server
+        'PORT': '5432',  # in future will come from config file
+    }
+}
 
 
 # Password validation
@@ -136,8 +145,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ]
 
 # [TBD] Disable rest default api view
-# REST_FRAMEWORK = {
-#     'DEFAULT_RENDERER_CLASSES':(
-#         'rest_framework.renderers.JSONRenderer',
-#                                 )
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES':(
+        'rest_framework.renderers.JSONRenderer',
+                                )
+}
