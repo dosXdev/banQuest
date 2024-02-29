@@ -40,9 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'banquest',
-    'api',
+    'api.apps.ApiConfig',
     # 'knox', # authentication [TBD]
-    # 'corsheader', # cors header policy for react comm. [TBD]
+    'corsheaders', # cors header policy for react comm. [TBD]
 ]
 
 MIDDLEWARE = [
@@ -53,8 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'corsheaders.middleware.CorsMiddleware',
-    # 'django.middleware.security.SecurityMiddleware', # [TBD]
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware', # [TBD]
 ]
 
 ROOT_URLCONF = 'banquest.urls'
@@ -82,21 +82,28 @@ WSGI_APPLICATION = 'banquest.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    # to be removed later
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+    # local PostgreSQL setup
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # in future will come from config file
         'NAME': 'banQuest',  # in future will come from config file
-        'USER': 'postgres', # in future will come from config file
-        'PASSWORD': 'sneh@123',  # in future will come from config file
-        'HOST': '172.28.128.1',  # ipv4 address of host server
+        'USER': '<user-placeholder>', # in future will come from config file
+        'PASSWORD': '<pw-placeholder',  # in future will come from config file
+        'HOST': '<ip-placeholder>',  # ipv4 address of host server
         'PORT': '5432',  # in future will come from config file
     }
+    # Dev RDS instance
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'banQuest',
+    #     'USER': 'admin_user',
+    #     'PASSWORD': '<pw-from-secrets-manager>',
+    #     'HOST': 'banquest.cns2m40s6n98.ap-south-1.rds.amazonaws.com',
+    #     'PORT': '5432',
+    # }
 }
 
+# cmd to connect to Dev RDS via Ec2
+# psql --host=banquest.cns2m40s6n98.ap-south-1.rds.amazonaws.com --port=5432 --username=admin_user --dbname=banQuest
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -139,10 +146,28 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# [TBD] required for CORS
-# CORS_ALLOWED_ORIGINS = [
-#    'http://localhost:3000', # frontend port [TBD]
-# ]
+# required for CORS
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Assuming UI is running on this origin
+    # more origins to be added as needed
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Accept-Language',
+    'Content-Type',
+    'Authorization',
+]
+
 
 # [TBD] Disable rest default api view
 REST_FRAMEWORK = {
