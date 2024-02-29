@@ -8,5 +8,8 @@ class UserDetails(models.Model):
     password = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
 
+    class Meta:
+        db_table = 'userdetails' # table name
+
     def __str__(self):
         return self.user_name
