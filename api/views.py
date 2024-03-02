@@ -7,9 +7,14 @@ from .models import UserDetails
 from .serializers import UserDetailsSerializer
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
 
 # Create your views here.
 
+def get_csrf_token(request):
+    # Get CSRF token
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
 
 def get_dummy_json_view(request):
     # get parameters from the URL

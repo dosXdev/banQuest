@@ -9,6 +9,7 @@ urlpatterns = [
     path('users/getall/', UserDetailsListCreate.as_view(), name='user-list-create'),
     path('users/get/<int:pk>/', UserDetailsView.as_view(), name='user-detail'),
     path('users/create/', UserCreateView.as_view(), name='user-create'),
+    path('get_csrf_token/', views.get_csrf_token, name='get_csrf_token'),
 
     # app apis
     path('forms/users/signup/', UserCreateView.as_view(), name='user-create'),

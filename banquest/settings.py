@@ -42,11 +42,10 @@ INSTALLED_APPS = [
     'banquest',
     'api.apps.ApiConfig',
     # 'knox', # authentication [TBD]
-    'corsheaders', # cors header policy for react comm. [TBD]
+    'corsheaders', # cors header policy for react comm.
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,7 +53,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware', # [TBD]
+    'django.middleware.security.SecurityMiddleware',
 ]
 
 ROOT_URLCONF = 'banquest.urls'
@@ -146,11 +145,19 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CSRF cookie settings
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+# CSRF_COOKIE_NAME = 'csrftoken'
+# CSRF_COOKIE_SECURE = False  # Set to True in production if served over HTTPS
+# CSRF_COOKIE_HTTPONLY = True  # Set to True to prevent client-side access  
+
 # required for CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Assuming UI is running on this origin
     # more origins to be added as needed
 ]
+
+CORS_ALLOW_CREDENTIALS = True  # to include cookies in cross-origin requests
 
 CORS_ALLOW_METHODS = [
     'GET',
@@ -166,10 +173,11 @@ CORS_ALLOW_HEADERS = [
     'Accept-Language',
     'Content-Type',
     'Authorization',
+    'X-CSRFToken',
 ]
 
 
-# [TBD] Disable rest default api view
+# Disable rest default api view
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES':(
         'rest_framework.renderers.JSONRenderer',
