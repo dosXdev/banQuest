@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your views here.
 
@@ -17,11 +18,13 @@ class UserSignUpView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
+            # Hashing the password before saving
+            hashed_password = make_password(data.get('password'))
             user = UserDetails.objects.create(
                 user_name=data.get('user_name'),
                 user_phone=data.get('user_phone'),
                 user_email=data.get('user_email'),
-                password=data.get('password'),
+                password=hashed_password,  # Store the hashed password
                 location=data.get('location')
             )
             return JsonResponse({'message': 'User signed up successfully', 'user_id': user.id}, status=201)
@@ -34,8 +37,12 @@ class UserLoginView(View):
             data = json.loads(request.body)
             user_email = data.get('user_email')
             password = data.get('password')
-            user = UserDetails.objects.get(user_email=user_email, password=password)
-            return JsonResponse({'message': 'User logged in successfully', 'user_id': user.id}, status=200)
+            user = UserDetails.objects.get(user_email=user_email)
+            # Check if the provided password matches the hashed password
+            if check_password(password, user.password):
+                return JsonResponse({'message': 'User logged in successfully', 'user_id': user.id}, status=200)
+            else:
+                return JsonResponse({'error': 'Invalid email or password'}, status=401)
         except UserDetails.DoesNotExist:
             return JsonResponse({'error': 'Invalid email or password'}, status=401)
         except Exception as e:
@@ -66,7 +73,9 @@ class UserEditProfileView(View):
             user.user_name = data.get('user_name', user.user_name)
             user.user_phone = data.get('user_phone', user.user_phone)
             user.user_email = data.get('user_email', user.user_email)
-            user.password = data.get('password', user.password)
+            # Hash the password if provided
+            if 'password' in data:
+                user.password = make_password(data['password'])
             user.location = data.get('location', user.location)
             user.save()
             return JsonResponse({'message': 'User profile updated successfully'}, status=200)
