@@ -8,6 +8,7 @@ from .serializers import UserDetailsSerializer
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
 # Create your views here.
 
@@ -50,8 +51,7 @@ class UserDetailsView(View):
 
 
 class UserCreateView(View):
-    @csrf_exempt
-    def post(self, request):
+    def post(self, request, format=None):
         # Get data from form fields
         user_name = request.POST.get('user_name')
         user_phone = request.POST.get('user_phone')
@@ -71,3 +71,14 @@ class UserCreateView(View):
         # Return success response
         response_data = {'message': 'User details created successfully'}
         return JsonResponse(response_data, status=201)
+
+
+def create_user_view(request):  
+    if request.method == 'POST':
+        serializer = UserDetailsSerializer(data=request.POST)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
