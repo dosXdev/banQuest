@@ -1,15 +1,85 @@
 # from django.shortcuts import render
 # import requests
 from django.http import JsonResponse
+import json
 from django.views import View
 from rest_framework import generics
 from .models import UserDetails
 from .serializers import UserDetailsSerializer
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 
 # Create your views here.
 
+class UserSignUpView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            user = UserDetails.objects.create(
+                user_name=data.get('user_name'),
+                user_phone=data.get('user_phone'),
+                user_email=data.get('user_email'),
+                password=data.get('password'),
+                location=data.get('location')
+            )
+            return JsonResponse({'message': 'User signed up successfully', 'user_id': user.id}, status=201)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+class UserLoginView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            user_email = data.get('user_email')
+            password = data.get('password')
+            user = UserDetails.objects.get(user_email=user_email, password=password)
+            return JsonResponse({'message': 'User logged in successfully', 'user_id': user.id}, status=200)
+        except UserDetails.DoesNotExist:
+            return JsonResponse({'error': 'Invalid email or password'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+class UserProfileView(View):
+    def get(self, request, user_id):
+        try:
+            user = UserDetails.objects.get(id=user_id)
+            user_data = {
+                'user_id': user.id,
+                'user_name': user.user_name,
+                'user_phone': user.user_phone,
+                'user_email': user.user_email,
+                'location': user.location
+            }
+            return JsonResponse({'user_details': user_data}, status=200)
+        except UserDetails.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+class UserEditProfileView(View):
+    def put(self, request, user_id):
+        try:
+            data = json.loads(request.body)
+            user = UserDetails.objects.get(id=user_id)
+            user.user_name = data.get('user_name', user.user_name)
+            user.user_phone = data.get('user_phone', user.user_phone)
+            user.user_email = data.get('user_email', user.user_email)
+            user.password = data.get('password', user.password)
+            user.location = data.get('location', user.location)
+            user.save()
+            return JsonResponse({'message': 'User profile updated successfully'}, status=200)
+        except UserDetails.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+
+def get_csrf_token(request):
+    # Get CSRF token
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
 
 def get_dummy_json_view(request):
     # get parameters from the URL
@@ -45,8 +115,7 @@ class UserDetailsView(View):
 
 
 class UserCreateView(View):
-    @csrf_exempt
-    def post(self, request):
+    def post(self, request, format=None):
         # Get data from form fields
         user_name = request.POST.get('user_name')
         user_phone = request.POST.get('user_phone')
@@ -66,3 +135,14 @@ class UserCreateView(View):
         # Return success response
         response_data = {'message': 'User details created successfully'}
         return JsonResponse(response_data, status=201)
+
+
+def create_user_view(request):  
+    if request.method == 'POST':
+        serializer = UserDetailsSerializer(data=request.POST)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
