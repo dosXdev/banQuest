@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+tt@hlm__$($i98e)^3%=o5j*21md+b&$%o(n)4(1lo+4koxbd
 DEBUG = True
 
 # host ip has to be added to this list
-ALLOWED_HOSTS = ['<aws-host-pub-ip>', '<elb-pub-ip>', '<health-check-ip>', '<ui-host-ip>', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,19 +41,54 @@ INSTALLED_APPS = [
     'rest_framework',
     'banquest',
     'api.apps.ApiConfig',
-    # 'knox', # authentication [TBD]
     'corsheaders', # cors header policy for react comm.
 ]
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+
+# CSRF cookie settings
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000','http://127.0.0.1:3000']
+CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+
+# required for CORS
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Assuming UI is running on this origin
+    "http://127.0.0.1:3000",
+    # more origins to be added as needed
+]
+
+CORS_ALLOW_CREDENTIALS = True  # to include cookies in cross-origin requests
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Accept-Language',
+    'Content-Type',
+    'Authorization',
+    'X-CSRFToken',
 ]
 
 ROOT_URLCONF = 'banquest.urls'
@@ -144,38 +179,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# CSRF cookie settings
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
-# CSRF_COOKIE_NAME = 'csrftoken'
-# CSRF_COOKIE_SECURE = False  # Set to True in production if served over HTTPS
-# CSRF_COOKIE_HTTPONLY = True  # Set to True to prevent client-side access  
-
-# required for CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Assuming UI is running on this origin
-    # more origins to be added as needed
-]
-
-CORS_ALLOW_CREDENTIALS = True  # to include cookies in cross-origin requests
-
-CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS',
-]
-
-CORS_ALLOW_HEADERS = [
-    'Accept',
-    'Accept-Language',
-    'Content-Type',
-    'Authorization',
-    'X-CSRFToken',
-]
-
 
 # Disable rest default api view
 REST_FRAMEWORK = {
