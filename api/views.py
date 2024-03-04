@@ -1,5 +1,3 @@
-# from django.shortcuts import render
-# import requests
 from django.http import JsonResponse
 import json
 from django.views import View
@@ -11,6 +9,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.contrib.auth.hashers import make_password, check_password
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
@@ -18,13 +21,12 @@ class UserSignUpView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
-            # Hashing the password before saving
             hashed_password = make_password(data.get('password'))
             user = UserDetails.objects.create(
                 user_name=data.get('user_name'),
                 user_phone=data.get('user_phone'),
                 user_email=data.get('user_email'),
-                password=hashed_password,  # Store the hashed password
+                password=hashed_password,
                 location=data.get('location')
             )
             return JsonResponse({'message': 'User signed up successfully', 'user_id': user.id}, status=201)
@@ -38,9 +40,9 @@ class UserLoginView(View):
             user_email = data.get('user_email')
             password = data.get('password')
             user = UserDetails.objects.get(user_email=user_email)
-            # Check if the provided password matches the hashed password
             if check_password(password, user.password):
-                return JsonResponse({'message': 'User logged in successfully', 'user_id': user.id}, status=200)
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=200)
             else:
                 return JsonResponse({'error': 'Invalid email or password'}, status=401)
         except UserDetails.DoesNotExist:
@@ -48,41 +50,25 @@ class UserLoginView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
-class UserProfileView(View):
-    def get(self, request, user_id):
-        try:
-            user = UserDetails.objects.get(id=user_id)
-            user_data = {
-                'user_id': user.id,
-                'user_name': user.user_name,
-                'user_phone': user.user_phone,
-                'user_email': user.user_email,
-                'location': user.location
-            }
-            return JsonResponse({'user_details': user_data}, status=200)
-        except UserDetails.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
 
-class UserEditProfileView(View):
-    def put(self, request, user_id):
-        try:
-            data = json.loads(request.body)
-            user = UserDetails.objects.get(id=user_id)
-            user.user_name = data.get('user_name', user.user_name)
-            user.user_phone = data.get('user_phone', user.user_phone)
-            user.user_email = data.get('user_email', user.user_email)
-            # Hash the password if provided
-            if 'password' in data:
-                user.password = make_password(data['password'])
-            user.location = data.get('location', user.location)
-            user.save()
-            return JsonResponse({'message': 'User profile updated successfully'}, status=200)
-        except UserDetails.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+    def get(self, request):
+        user = request.user
+        serializer = UserDetailsSerializer(user)
+        return Response(serializer.data)
+
+class UserEditProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        data = request.data
+        serializer = UserDetailsSerializer(user, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'User profile updated successfully'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_csrf_token(request):
