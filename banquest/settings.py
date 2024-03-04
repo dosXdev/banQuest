@@ -120,9 +120,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # in future will come from config file
         'NAME': 'banQuest',  # in future will come from config file
-        'USER': '<user-placeholder>', # in future will come from config file
-        'PASSWORD': '<pw-placeholder',  # in future will come from config file
-        'HOST': '<ip-placeholder>',  # ipv4 address of host server
+        'USER': 'postgres', # in future will come from config file
+        'PASSWORD': 'sneh@123',  # in future will come from config file
+        'HOST': '172.28.128.1',  # ipv4 address of host server
         'PORT': '5432',  # in future will come from config file
     }
     # Dev RDS instance

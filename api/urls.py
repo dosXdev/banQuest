@@ -1,6 +1,14 @@
 from django.urls import path
 from api import views
-from .views import UserDetailsListCreate, UserDetailsView, UserCreateView
+from .views import (
+    UserDetailsListCreate, 
+    UserDetailsView, 
+    UserCreateView,
+    UserSignUpView,
+    UserProfileView,
+    UserEditProfileView,
+    UserLoginView,
+)
 
 urlpatterns = [
     # Test apis
@@ -11,6 +19,10 @@ urlpatterns = [
     path('users/get/<int:pk>/', UserDetailsView.as_view(), name='user-detail'),
     path('users/create/', UserCreateView.as_view(), name='user-create'),
     path('get_csrf_token/', views.get_csrf_token, name='get_csrf_token'),
+    path('test/signup/', UserSignUpView.as_view(), name='user_signup'),
+    path('test/login/', UserLoginView.as_view(), name='user_login'),
+    path('test/profile/<int:user_id>/', UserProfileView.as_view(), name='user_profile'),
+    path('test/profile/edit/<int:user_id>/', UserEditProfileView.as_view(), name='user_edit_profile'),
 
     # Debug apis
     # These apis are meant for dev/prod debug operations and
