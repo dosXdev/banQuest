@@ -13,14 +13,16 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Create your views here.
 
+# Signup user
 class UserSignUpView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            # data = json.loads(request.POST)
+            data = request.POST.dict()
             hashed_password = make_password(data.get('password'))
             user = UserDetails.objects.create(
                 user_name=data.get('user_name'),
@@ -33,10 +35,11 @@ class UserSignUpView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
-class UserLoginView(View):
+# Login user
+class UserSigninView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data = request.POST.dict()
             user_email = data.get('user_email')
             password = data.get('password')
             user = UserDetails.objects.get(user_email=user_email)
@@ -50,6 +53,7 @@ class UserLoginView(View):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
+# Profile view for single user
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -58,45 +62,30 @@ class UserProfileView(APIView):
         serializer = UserDetailsSerializer(user)
         return Response(serializer.data)
 
+# Edit user profile
 class UserEditProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def put(self, request):
-        user = request.user
-        data = request.data
-        serializer = UserDetailsSerializer(user, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'User profile updated successfully'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, user_id):
+        try:
+            # data = json.loads(request.body)
+            data = request.PUT.dict()
+            user = UserDetails.objects.get(id=user_id)
+            user.user_name = data.get('user_name')
+            user.user_phone = data.get('user_phone')
+            user.user_email = data.get('user_email')
+            if 'password' in data:
+                user.password = make_password(data['password'])
+            user.location = data.get('location', user.location)
+            user.save()
+            return JsonResponse({'message': 'User profile updated successfully'}, status=status.HTTP_200_OK)
+        except UserDetails.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 
-
-def get_csrf_token(request):
-    # Get CSRF token
-    csrf_token = get_token(request)
-    return JsonResponse({'csrfToken': csrf_token})
-
-def get_dummy_json_view(request):
-    # get parameters from the URL
-    name_param = request.GET.get('name', '')
-    email_param = request.GET.get('email', '')
-
-    # static json payload
-    dummy_data = {
-        "name": name_param,
-        "email": email_param,
-        "other_data": "value",
-    }
-
-    # return payload
-    return JsonResponse(dummy_data)
-
-
-class UserDetailsListCreate(generics.ListCreateAPIView):
-    queryset = UserDetails.objects.all()
-    serializer_class = UserDetailsSerializer
-
-
+# User details view
 class UserDetailsView(View):
     def get(self, request, pk):
         user_details = get_object_or_404(UserDetails, pk=pk)
@@ -109,6 +98,18 @@ class UserDetailsView(View):
         return JsonResponse(data)
 
 
+# List all users from UserDetails
+class UserDetailsListCreate(generics.ListCreateAPIView):
+    queryset = UserDetails.objects.all()
+    serializer_class = UserDetailsSerializer
+
+# Set CSRF token cookie
+class SetCSRFTokenView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response({'message': 'CSRF token cookie set successfully'}, status=status.HTTP_200_OK)
+
+# [To be depricated] Create a new user
 class UserCreateView(View):
     def post(self, request, format=None):
         # Get data from form fields
@@ -132,12 +133,17 @@ class UserCreateView(View):
         return JsonResponse(response_data, status=201)
 
 
-def create_user_view(request):  
-    if request.method == 'POST':
-        serializer = UserDetailsSerializer(data=request.POST)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-    else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+# dummy api for testing
+def get_dummy_json_view(request):
+    # get parameters from the URL
+    name_param = request.GET.get('name', '')
+    email_param = request.GET.get('email', '')
+
+    # static json payload
+    dummy_data = {
+        "name": name_param,
+        "email": email_param,
+        "other_data": "value",
+    }
+    # return payload
+    return JsonResponse(dummy_data)
