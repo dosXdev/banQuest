@@ -27,7 +27,6 @@ urlpatterns = [
     # Debug apis
     # These apis are meant for dev/prod debug operations and
     # must be replaced with App apis before deployment.
-    path('debug/users/signup/', views.create_user_view, name='create_user_view'),
 
     # App apis
     path('set_csrf_token/', SetCSRFTokenView.as_view(), name='set-csrf-token'),

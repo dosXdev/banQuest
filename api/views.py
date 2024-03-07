@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authtoken.models import Token
 
 # Create your views here.
 
@@ -21,7 +22,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 class UserSignUpView(View):
     def post(self, request):
         try:
-            # data = json.loads(request.POST)
             data = request.POST.dict()
             hashed_password = make_password(data.get('password'))
             user = UserDetails.objects.create(
@@ -43,13 +43,14 @@ class UserSigninView(View):
             user_email = data.get('user_email')
             password = data.get('password')
             user = UserDetails.objects.get(user_email=user_email)
+            print(user.password)
             if check_password(password, user.password):
                 refresh = RefreshToken.for_user(user)
-                return JsonResponse({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=200)
+                return JsonResponse({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_200_OK)
             else:
-                return JsonResponse({'error': 'Invalid email or password'}, status=401)
+                return JsonResponse({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         except UserDetails.DoesNotExist:
-            return JsonResponse({'error': 'Invalid email or password'}, status=401)
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
@@ -57,10 +58,22 @@ class UserSigninView(View):
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        serializer = UserDetailsSerializer(user)
-        return Response(serializer.data)
+    def get(self, request, user_id):
+        try:
+            print("Authenticated bitch!")
+            user = UserDetails.objects.get(id=user_id)
+            user_data = {
+                'id': user.id,
+                'user_name': user.user_name,
+                'user_phone': user.user_phone,
+                'user_email': user.user_email,
+                'location': user.location
+            }
+            return JsonResponse({'user_details': user_data}, status=status.HTTP_200_OK)
+        except UserDetails.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # Edit user profile
 class UserEditProfileView(APIView):
@@ -68,15 +81,14 @@ class UserEditProfileView(APIView):
 
     def put(self, request, user_id):
         try:
-            # data = json.loads(request.body)
-            data = request.PUT.dict()
+            data = request.POST.dict()
             user = UserDetails.objects.get(id=user_id)
             user.user_name = data.get('user_name')
             user.user_phone = data.get('user_phone')
             user.user_email = data.get('user_email')
             if 'password' in data:
                 user.password = make_password(data['password'])
-            user.location = data.get('location', user.location)
+            user.location = data.get('location')
             user.save()
             return JsonResponse({'message': 'User profile updated successfully'}, status=status.HTTP_200_OK)
         except UserDetails.DoesNotExist:
