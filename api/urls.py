@@ -7,7 +7,8 @@ from .views import (
     UserSignUpView,
     UserProfileView,
     UserEditProfileView,
-    UserLoginView,
+    UserSigninView,
+    SetCSRFTokenView,
 )
 
 urlpatterns = [
@@ -18,9 +19,8 @@ urlpatterns = [
     path('users/getall/', UserDetailsListCreate.as_view(), name='user-list-create'),
     path('users/get/<int:pk>/', UserDetailsView.as_view(), name='user-detail'),
     path('users/create/', UserCreateView.as_view(), name='user-create'),
-    path('get_csrf_token/', views.get_csrf_token, name='get_csrf_token'),
     path('test/signup/', UserSignUpView.as_view(), name='user_signup'),
-    path('test/login/', UserLoginView.as_view(), name='user_login'),
+    path('test/signin/', UserSigninView.as_view(), name='user_login'),
     path('test/profile/<int:user_id>/', UserProfileView.as_view(), name='user_profile'),
     path('test/profile/edit/<int:user_id>/', UserEditProfileView.as_view(), name='user_edit_profile'),
 
@@ -30,5 +30,6 @@ urlpatterns = [
     path('debug/users/signup/', views.create_user_view, name='create_user_view'),
 
     # App apis
+    path('set_csrf_token/', SetCSRFTokenView.as_view(), name='set-csrf-token'),
     path('forms/users/signup/', UserCreateView.as_view(), name='user-create'),
 ]
