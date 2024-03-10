@@ -59,9 +59,12 @@ class UserProfileView(APIView):
     # overriding auth class with custom class for now
     authentication_classes = [JWTAuthentication]
 
-    def get(self, request):
+    def get(self, request, user_id):
+        if user_id != request.user.id:
+            # Requester should not access other user's profile
+            return JsonResponse({'error': 'Not authorized to view other users'})
         try:
-            user = UserDetails.objects.get(id=request.user.id)
+            user = UserDetails.objects.get(id=user_id)
             user_data = {
                 'id': user.id,
                 'user_name': user.user_name,
@@ -81,6 +84,9 @@ class UserEditProfileView(APIView):
     authentication_classes = [JWTAuthentication]
 
     def put(self, request, user_id):
+        if user_id != request.user.id:
+            # Requester should not access other user's profile
+            return JsonResponse({'error': 'Not authorized to edit other users'})
         try:
             data = request.POST.dict()
             user = UserDetails.objects.get(id=user_id)
