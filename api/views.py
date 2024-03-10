@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
+from .authentication import JWTAuthentication
 
 # Create your views here.
 
@@ -43,7 +44,6 @@ class UserSigninView(View):
             user_email = data.get('user_email')
             password = data.get('password')
             user = UserDetails.objects.get(user_email=user_email)
-            print(user.password)
             if check_password(password, user.password):
                 refresh = RefreshToken.for_user(user)
                 return JsonResponse({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_200_OK)
@@ -56,12 +56,12 @@ class UserSigninView(View):
 
 # Profile view for single user
 class UserProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+    # overriding auth class with custom class for now
+    authentication_classes = [JWTAuthentication]
 
-    def get(self, request, user_id):
+    def get(self, request):
         try:
-            print("Authenticated bitch!")
-            user = UserDetails.objects.get(id=user_id)
+            user = UserDetails.objects.get(id=request.user.id)
             user_data = {
                 'id': user.id,
                 'user_name': user.user_name,
@@ -77,7 +77,8 @@ class UserProfileView(APIView):
 
 # Edit user profile
 class UserEditProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+    # overriding auth class with custom class for now
+    authentication_classes = [JWTAuthentication]
 
     def put(self, request, user_id):
         try:
