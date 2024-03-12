@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-+tt@hlm__$($i98e)^3%=o5j*21md+b&$%o(n)4(1lo+4koxbd
 DEBUG = True
 
 # host ip has to be added to this list
-ALLOWED_HOSTS = ['<aws-host-pub-ip>', '<elb-pub-ip>', '<health-check-ip>', '<ui-host-ip>', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,22 +40,57 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'banquest',
     'api.apps.ApiConfig',
-    # 'knox', # authentication [TBD]
-    'corsheaders', # cors header policy for react comm. [TBD]
+    'corsheaders', # cors header policy for react comm.
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware', # [TBD]
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+
+# CSRF cookie settings
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000','http://127.0.0.1:3000']
+CSRF_COOKIE_NAME = 'XSRF-TOKEN'
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+
+# required for CORS
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Assuming UI is running on this origin
+    "http://127.0.0.1:3000",
+    # more origins to be added as needed
+]
+
+CORS_ALLOW_CREDENTIALS = True  # to include cookies in cross-origin requests
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'Accept',
+    'Accept-Language',
+    'Content-Type',
+    'Authorization',
+    'X-CSRFToken',
 ]
 
 ROOT_URLCONF = 'banquest.urls'
@@ -86,9 +122,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # in future will come from config file
         'NAME': 'banQuest',  # in future will come from config file
-        'USER': '<user-placeholder>', # in future will come from config file
-        'PASSWORD': '<pw-placeholder',  # in future will come from config file
-        'HOST': '<ip-placeholder>',  # ipv4 address of host server
+        'USER': '<DB_USER>', # in future will come from config file
+        'PASSWORD': '<DB_PASSWORD>',  # in future will come from config file
+        'HOST': '<HOST_IP>',  # ipv4 address of host server
         'PORT': '5432',  # in future will come from config file
     }
     # Dev RDS instance
@@ -146,32 +182,23 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# required for CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Assuming UI is running on this origin
-    # more origins to be added as needed
-]
-
-CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS',
-]
-
-CORS_ALLOW_HEADERS = [
-    'Accept',
-    'Accept-Language',
-    'Content-Type',
-    'Authorization',
-]
-
-
-# [TBD] Disable rest default api view
+# Disable rest default api view
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES':(
         'rest_framework.renderers.JSONRenderer',
-                                )
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'api.authentication.JWTAuthentication',
+        # Add other authentication classes if needed
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
 }
