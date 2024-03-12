@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -120,21 +121,21 @@ WSGI_APPLICATION = 'banquest.wsgi.application'
 DATABASES = {
     # local PostgreSQL setup
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # in future will come from config file
-        'NAME': 'banQuest',  # in future will come from config file
-        'USER': '<DB_USER>', # in future will come from config file
-        'PASSWORD': '<DB_PASSWORD>',  # in future will come from config file
-        'HOST': '<HOST_IP>',  # ipv4 address of host server
-        'PORT': '5432',  # in future will come from config file
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'banQuest'),
+        'USER': os.environ.get('DB_USER', '<DEF_DB_USER>'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '<DEF_DB_PASSWORD>'),
+        'HOST': os.environ.get('DB_HOST', '<DEF_HOST_IP>'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
     # Dev RDS instance
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'banQuest',
-    #     'USER': 'admin_user',
-    #     'PASSWORD': '<pw-from-secrets-manager>',
-    #     'HOST': 'banquest.cns2m40s6n98.ap-south-1.rds.amazonaws.com',
-    #     'PORT': '5432',
+    #     'NAME': os.environ.get('DB_NAME', 'banQuest'),
+    #     'USER': os.environ.get('DB_USER', '<DEF_DB_USER>'),
+    #     'PASSWORD': os.environ.get('DB_PASSWORD', '<DEF_DB_PASSWORD>'),
+    #     'HOST': os.environ.get('DB_HOST', '<DEF_HOST_IP>'),
+    #     'PORT': os.environ.get('DB_PORT', '5432'),
     # }
 }
 

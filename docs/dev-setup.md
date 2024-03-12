@@ -39,18 +39,39 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 
 3.  **Setup local database connection:**
 
-	After `banQuest` database creation and user auth (username, password) setup, we need to update the `banquest/settings.py` file to establish Django-DB connection.
+	After `banQuest` database creation and user auth (username, password) setup, we need to set environment variables for the application to connect to the database. This can either be done manually or via shell.
 
+	Note: environment variables > default placeholder values
+
+	Via terminal (only for linux/OSX):
+
+	Create an `.env` file with below data format in the project directory:
+
+		DB_NAME=banQuest
+		DB_USER=example
+		DB_PASSWORD=example@123
+		DB_HOST=111.222.333.444
+		DB_PORT=5432
+
+	- next run `source .env`
+	
+	Or manually update the `banquest/settings.py` file to establish Django-DB connection.
 	Edit the `DATABASE` section of the settings file replacing all the local PostgreSQL placeholders like USER, PASSWORD, and HOST.
 
 	Now run the following commands to run migrations on the database:
 
-		#Generate a new migration for the changes in your models
+		# Generate a new migration for the changes in your models
 		python manage.py makemigrations
 		# Apply the migrations to your database
 		python manage.py migrate
 
 4.  **Run on development server:**
+
+	The `scripts/runlocal.py` platform independent script provides the automation to set env vars, install requirements, then start local server on port :8000 with a single command for local testing, 
+	
+	`python scripts/runlocal.py` [assuming .env file has been created with proper env vars]
+	
+	But for more customization the manual procedure mentioned below can be used.
 	Let’s verify your Django project works. Change into the outer `banQuest` directory, if you haven’t already, and run the following commands:
 	
 	`python manage.py runserver`
@@ -80,7 +101,7 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 
 1. Start the web server with the following command:
 
-	`python manage.py runserver`
+	`python scripts/runlocal.py`
 
 2. [TBD] Use the template collection to access api configurations.
 
