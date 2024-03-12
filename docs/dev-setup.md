@@ -41,7 +41,7 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 
 	After `banQuest` database creation and user auth (username, password) setup, we need to set environment variables for the application to connect to the database. This can either be done manually or via shell.
 
-	Note: environment variables > default placeholder values > python variables
+	Note: environment variables > default placeholder values
 
 	Via terminal (only for linux/OSX):
 
