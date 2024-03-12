@@ -1,5 +1,0 @@
-DB_NAME=<value without quotes>
-DB_USER=<value without quotes>
-DB_PASSWORD=<value without quotes>
-DB_HOST=<value without quotes>
-DB_PORT=5432

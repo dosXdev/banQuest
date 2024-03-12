@@ -6,7 +6,7 @@ import sys
 
 def set_env_variables():
     try:
-        with open('.config.txt') as f:
+        with open('.env') as f:
             for line in f:
                 key, value = line.strip().split('=')
                 os.environ[key] = value
