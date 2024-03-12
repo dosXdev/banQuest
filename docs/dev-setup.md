@@ -45,7 +45,7 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 
 	Via terminal (only for linux/OSX):
 
-	- create an `.env` file with below data format in the project directory,
+	Create an `.env` file with below data format in the project directory:
 
 		DB_NAME=banQuest
 		DB_USER=example
