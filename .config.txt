@@ -1,0 +1,5 @@
+DB_NAME=banQuest
+DB_USER=postgres
+DB_PASSWORD=sneh@123
+DB_HOST=172.28.128.1
+DB_PORT=5432
