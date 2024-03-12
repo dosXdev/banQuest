@@ -1,5 +1,3 @@
-# from django.shortcuts import render
-# import requests
 from django.http import JsonResponse
 import json
 from django.views import View
@@ -11,106 +9,102 @@ from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.contrib.auth.hashers import make_password, check_password
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authtoken.models import Token
+from .authentication import JWTAuthentication
 
 # Create your views here.
 
+# Signup user
 class UserSignUpView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
-            # Hashing the password before saving
+            data = request.POST.dict()
             hashed_password = make_password(data.get('password'))
             user = UserDetails.objects.create(
                 user_name=data.get('user_name'),
                 user_phone=data.get('user_phone'),
                 user_email=data.get('user_email'),
-                password=hashed_password,  # Store the hashed password
+                password=hashed_password,
                 location=data.get('location')
             )
             return JsonResponse({'message': 'User signed up successfully', 'user_id': user.id}, status=201)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
-class UserLoginView(View):
+# Login user
+class UserSigninView(View):
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            data = request.POST.dict()
             user_email = data.get('user_email')
             password = data.get('password')
             user = UserDetails.objects.get(user_email=user_email)
-            # Check if the provided password matches the hashed password
             if check_password(password, user.password):
-                return JsonResponse({'message': 'User logged in successfully', 'user_id': user.id}, status=200)
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_200_OK)
             else:
-                return JsonResponse({'error': 'Invalid email or password'}, status=401)
+                return JsonResponse({'error': 'Invalid email or password'}, status=status.HTTP_401_UNAUTHORIZED)
         except UserDetails.DoesNotExist:
-            return JsonResponse({'error': 'Invalid email or password'}, status=401)
+            return JsonResponse({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
-class UserProfileView(View):
+# Profile view for single user
+class UserProfileView(APIView):
+    # overriding auth class with custom class for now
+    authentication_classes = [JWTAuthentication]
+
     def get(self, request, user_id):
+        if user_id != request.user.id:
+            # Requester should not access other user's profile
+            return JsonResponse({'error': 'Not authorized to view other users'})
         try:
             user = UserDetails.objects.get(id=user_id)
             user_data = {
-                'user_id': user.id,
+                'id': user.id,
                 'user_name': user.user_name,
                 'user_phone': user.user_phone,
                 'user_email': user.user_email,
                 'location': user.location
             }
-            return JsonResponse({'user_details': user_data}, status=200)
+            return JsonResponse({'user_details': user_data}, status=status.HTTP_200_OK)
         except UserDetails.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
+            return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class UserEditProfileView(View):
+# Edit user profile
+class UserEditProfileView(APIView):
+    # overriding auth class with custom class for now
+    authentication_classes = [JWTAuthentication]
+
     def put(self, request, user_id):
+        if user_id != request.user.id:
+            # Requester should not access other user's profile
+            return JsonResponse({'error': 'Not authorized to edit other users'})
         try:
-            data = json.loads(request.body)
+            data = request.POST.dict()
             user = UserDetails.objects.get(id=user_id)
-            user.user_name = data.get('user_name', user.user_name)
-            user.user_phone = data.get('user_phone', user.user_phone)
-            user.user_email = data.get('user_email', user.user_email)
-            # Hash the password if provided
+            user.user_name = data.get('user_name')
+            user.user_phone = data.get('user_phone')
+            user.user_email = data.get('user_email')
             if 'password' in data:
                 user.password = make_password(data['password'])
-            user.location = data.get('location', user.location)
+            user.location = data.get('location')
             user.save()
-            return JsonResponse({'message': 'User profile updated successfully'}, status=200)
+            return JsonResponse({'message': 'User profile updated successfully'}, status=status.HTTP_200_OK)
         except UserDetails.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
+            return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
 
-
-def get_csrf_token(request):
-    # Get CSRF token
-    csrf_token = get_token(request)
-    return JsonResponse({'csrfToken': csrf_token})
-
-def get_dummy_json_view(request):
-    # get parameters from the URL
-    name_param = request.GET.get('name', '')
-    email_param = request.GET.get('email', '')
-
-    # static json payload
-    dummy_data = {
-        "name": name_param,
-        "email": email_param,
-        "other_data": "value",
-    }
-
-    # return payload
-    return JsonResponse(dummy_data)
-
-
-class UserDetailsListCreate(generics.ListCreateAPIView):
-    queryset = UserDetails.objects.all()
-    serializer_class = UserDetailsSerializer
-
-
+# User details view
 class UserDetailsView(View):
     def get(self, request, pk):
         user_details = get_object_or_404(UserDetails, pk=pk)
@@ -123,6 +117,18 @@ class UserDetailsView(View):
         return JsonResponse(data)
 
 
+# List all users from UserDetails
+class UserDetailsListCreate(generics.ListCreateAPIView):
+    queryset = UserDetails.objects.all()
+    serializer_class = UserDetailsSerializer
+
+# Set CSRF token cookie
+class SetCSRFTokenView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response({'message': 'CSRF token cookie set successfully'}, status=status.HTTP_200_OK)
+
+# [To be depricated] Create a new user
 class UserCreateView(View):
     def post(self, request, format=None):
         # Get data from form fields
@@ -146,12 +152,17 @@ class UserCreateView(View):
         return JsonResponse(response_data, status=201)
 
 
-def create_user_view(request):  
-    if request.method == 'POST':
-        serializer = UserDetailsSerializer(data=request.POST)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-    else:
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+# dummy api for testing
+def get_dummy_json_view(request):
+    # get parameters from the URL
+    name_param = request.GET.get('name', '')
+    email_param = request.GET.get('email', '')
+
+    # static json payload
+    dummy_data = {
+        "name": name_param,
+        "email": email_param,
+        "other_data": "value",
+    }
+    # return payload
+    return JsonResponse(dummy_data)
