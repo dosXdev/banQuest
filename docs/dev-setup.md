@@ -97,7 +97,7 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 
   
 
-## API Testing
+## API Testing (Manual)
 
 1. Start the web server with the following command:
 
@@ -111,3 +111,11 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 	>  `curl --request GET --url http://127.0.0.1:8000/`*
 
 4. For a new API request open an issue [here](https://github.com/dosXdev/banQuest/issues) with the appropriate API specification.
+
+## Running tests
+
+1. Create .env file and update database secrets
+
+2. Run `unit-tests.py` script to run all test modules:
+
+	`python scripts/unit-tests.py`
