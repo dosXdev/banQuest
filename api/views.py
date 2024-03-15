@@ -32,7 +32,7 @@ class UserSignUpView(View):
                 password=hashed_password,
                 location=data.get('location')
             )
-            return JsonResponse({'message': 'User signed up successfully', 'user_id': user.id}, status=201)
+            return JsonResponse({'message': 'User signed up successfully', 'user_id': user.id}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
@@ -90,12 +90,12 @@ class UserEditProfileView(APIView):
         try:
             data = request.POST.dict()
             user = UserDetails.objects.get(id=user_id)
-            user.user_name = data.get('user_name')
-            user.user_phone = data.get('user_phone')
-            user.user_email = data.get('user_email')
+            user.user_name = data.get('user_name', user.user_name)
+            user.user_phone = data.get('user_phone', user.user_phone)
+            user.user_email = data.get('user_email', user.user_email)
             if 'password' in data:
                 user.password = make_password(data['password'])
-            user.location = data.get('location')
+            user.location = data.get('location', user.location)
             user.save()
             return JsonResponse({'message': 'User profile updated successfully'}, status=status.HTTP_200_OK)
         except UserDetails.DoesNotExist:
