@@ -27,6 +27,7 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       env:
+        ENV: testing
         DB_NAME: test_db
         DB_USER: test_user
         DB_PASSWORD: test_password
