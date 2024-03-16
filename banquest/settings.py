@@ -118,26 +118,50 @@ WSGI_APPLICATION = 'banquest.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    # local PostgreSQL setup
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'banQuest'),
-        'USER': os.environ.get('DB_USER', '<DEF_DB_USER>'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', '<DEF_DB_PASSWORD>'),
-        'HOST': os.environ.get('DB_HOST', '<DEF_HOST_IP>'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+
+# Determine whether we're running in a testing environment
+ENV = os.environ.get('ENV', '')
+
+if ENV == 'testing':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
     }
-    # Dev RDS instance
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': os.environ.get('DB_NAME', 'banQuest'),
-    #     'USER': os.environ.get('DB_USER', '<DEF_DB_USER>'),
-    #     'PASSWORD': os.environ.get('DB_PASSWORD', '<DEF_DB_PASSWORD>'),
-    #     'HOST': os.environ.get('DB_HOST', '<DEF_HOST_IP>'),
-    #     'PORT': os.environ.get('DB_PORT', '5432'),
-    # }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'banQuest'),
+            'USER': os.environ.get('DB_USER', '<DEF_DB_USER>'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', '<DEF_DB_PASSWORD>'),
+            'HOST': os.environ.get('DB_HOST', '<DEF_HOST_IP>'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
+    }
+
+
+# DATABASES = {
+#     # local PostgreSQL setup
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'dfvdfb',
+#         'USER': 'fwsdger',
+#         'PASSWORD': 'sfrgwserg',
+#         'HOST': '127.0.0.1',
+#         'PORT': 5432,
+#     }
+#     # Dev RDS instance
+#     # 'default': {
+#     #     'ENGINE': 'django.db.backends.postgresql',
+#     #     'NAME': os.environ.get('DB_NAME', 'banQuest'),
+#     #     'USER': os.environ.get('DB_USER', '<DEF_DB_USER>'),
+#     #     'PASSWORD': os.environ.get('DB_PASSWORD', '<DEF_DB_PASSWORD>'),
+#     #     'HOST': os.environ.get('DB_HOST', '<DEF_HOST_IP>'),
+#     #     'PORT': os.environ.get('DB_PORT', '5432'),
+#     # }
+# }
 
 # cmd to connect to Dev RDS via Ec2
 # psql --host=banquest.cns2m40s6n98.ap-south-1.rds.amazonaws.com --port=5432 --username=admin_user --dbname=banQuest
