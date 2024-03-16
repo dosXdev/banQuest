@@ -119,17 +119,20 @@ WSGI_APPLICATION = 'banquest.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
-# Determine whether we're running in a testing environment
-ENV = os.environ.get('ENV', '')
+# Determine enviornment ['local', 'dev', 'testing']
+# By default set ENV as 'local'
+ENV = os.environ.get('ENV', 'local')
 
 if ENV == 'testing':
+    # mock database for running tests
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': ':memory:',
         }
     }
-else:
+elif ENV == 'local':
+    # local postgresql
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -140,28 +143,18 @@ else:
             'PORT': os.environ.get('DB_PORT', '5432'),
         }
     }
-
-
-# DATABASES = {
-#     # local PostgreSQL setup
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'dfvdfb',
-#         'USER': 'fwsdger',
-#         'PASSWORD': 'sfrgwserg',
-#         'HOST': '127.0.0.1',
-#         'PORT': 5432,
-#     }
-#     # Dev RDS instance
-#     # 'default': {
-#     #     'ENGINE': 'django.db.backends.postgresql',
-#     #     'NAME': os.environ.get('DB_NAME', 'banQuest'),
-#     #     'USER': os.environ.get('DB_USER', '<DEF_DB_USER>'),
-#     #     'PASSWORD': os.environ.get('DB_PASSWORD', '<DEF_DB_PASSWORD>'),
-#     #     'HOST': os.environ.get('DB_HOST', '<DEF_HOST_IP>'),
-#     #     'PORT': os.environ.get('DB_PORT', '5432'),
-#     # }
-# }
+elif ENV == 'dev':
+    # Dev RDS instance
+    DATABASES ={
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'banQuest'),
+            'USER': os.environ.get('DB_USER', '<DEV_DB_USER>'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', '<DEV_DB_PASSWORD>'),
+            'HOST': os.environ.get('DB_HOST', '<DEV_HOST_IP>'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
+    }
 
 # cmd to connect to Dev RDS via Ec2
 # psql --host=banquest.cns2m40s6n98.ap-south-1.rds.amazonaws.com --port=5432 --username=admin_user --dbname=banQuest
