@@ -1,0 +1,4 @@
+# env vars should be passed via docker run command like:
+# docker run --env-file .env --name banquest-app-c1 -p 8000:8000 --network banquest-postgres-network -d banquest-app
+
+.env
