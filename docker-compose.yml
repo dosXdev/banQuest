@@ -1,0 +1,39 @@
+version: '3.4'
+
+networks:
+  my-network:  # Custom network for communication
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: banquest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  django:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      DB_NAME: banquest
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "8000:8000"
+    networks:
+      - my-network
+    depends_on:
+      db:  # Keep depends_on for additional safety
+        condition: service_healthy  # Wait for the db service to be healthy
