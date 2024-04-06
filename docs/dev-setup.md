@@ -107,8 +107,8 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 
 3. Or simply use your test API URL to [test the request on Postman](https://www.geeksforgeeks.org/basics-of-api-testing-using-postman/).
 
-	> *_Note_: Alternatively you can also use curl for testing API response
-	>  `curl --request GET --url http://127.0.0.1:8000/`*
+	> _Note_: Alternatively you can also use curl for testing API response
+	>  `curl --request GET --url http://127.0.0.1:8000/`
 
 4. For a new API request open an issue [here](https://github.com/dosXdev/banQuest/issues) with the appropriate API specification.
 
@@ -119,3 +119,16 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 2. Run `unit-tests.py` script to run all test modules:
 
 	`python scripts/unit-tests.py`
+
+
+## Running in a container
+
+Steps for backend containerisation using [Docker](https://docs.docker.com/desktop/):
+
+	export API_PUSH_KEY=<YOUR_PUSH_KEY>
+	docker login -u <REG_USER_NAME> -p $API_PUSH_KEY
+	docker build -t <REG_USER_NAME>/banquest:<TAG> .
+	docker push <REG_USER_NAME>/banquest:<TAG>
+	docker run --env-file .env --name banquest-app-c1 -p 8000:8000 -d banquest:<TAG>
+
+> _Note_: Default backend appilication image for running BanQuest inside of a container is still a WIP
