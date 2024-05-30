@@ -208,7 +208,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'api.authentication.JWTAuthentication',
+        # 'api.authentication.JWTAuthentication', # disable universal JWT auth for now
         # Add other authentication classes if needed
     ],
 }

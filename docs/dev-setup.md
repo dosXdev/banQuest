@@ -15,7 +15,9 @@ This documents gives a brief setup and installation guide for the banQuest Djang
 
 ## Setup
 
-> dependinng on host OS commands might change. Setup a python alias first if required.
+> Depending on host OS commands might change. Setup a python alias first if required.
+
+Please refer to `Setting up testing env using docker-compose` section for a 360 degree setup including react UI and postgre db. Or else, follow the below instructions for standalone local API app setup:
 
 1.  **Create a virtual environment:**
 	Open your terminal and, inside your _banQuest_ project folder, use the following command to create a virtual environment named **.venv**: `python -m venv .venv`
@@ -132,3 +134,13 @@ Steps for backend containerisation using [Docker](https://docs.docker.com/deskto
 	docker run --env-file .env --name banquest-app-c1 -p 8000:8000 -d banquest:<TAG>
 
 > _Note_: Default backend appilication image for running BanQuest inside of a container is still a WIP
+
+## Setting up testing env using `docker-compose`:
+
+1. For `docker-compose` to run we assume you have both the frontend and backend repo cloned inside a parent directory.
+2. `cd` into the backend repo (banQuest) and run the following command `docker-compose up --build`
+
+	> _Note: You can replace the hardcoded env vars in the docker-compose file as need be_
+
+3. This should build and bring up both the React and Django apps along with a postgresql instance. 
+4. APIs should be accessible at port `:8000` and the UI at port `:3000`.
