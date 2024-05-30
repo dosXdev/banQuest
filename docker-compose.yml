@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    environment:
+      # Todo: take secrets/config from env vars
+      POSTGRES_DB: banQuest
+      POSTGRES_USER: dosxdev
+      POSTGRES_PASSWORD: dosxdev123
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/dosXdev/banQuest
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      # Todo: remove hardcoded db uri
+      # DATABASE_URL: postgres://dosxdev:dosxdev123@db:5432/banQuest
+      # Todo: take secrets/config from env vars
+      ENV: dev
+      DB_NAME: banQuest
+      DB_USER: dosxdev
+      DB_PASSWORD: dosxdev123
+      DB_HOST: db
+      DB_PORT: 5432
+  
+  # Todo: make frontend dc file separate and use image names
+  # instead of depending on folder structure
+  frontend:
+    build:
+      context: ../banQuest-UI
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_BACKEND_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

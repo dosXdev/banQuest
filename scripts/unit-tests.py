@@ -5,18 +5,8 @@ import subprocess
 import sys
 
 def set_env_variables():
-    try:
-        with open('.env') as f:
-            for line in f:
-                key, value = line.strip().split('=')
-                os.environ[key] = value
-        print("[INFO] STEP 1: Setting environment variables... DONE")
-    except FileNotFoundError:
-        print("[ERROR] STEP 1: Config file not found.")
-        sys.exit(1)
-    except ValueError:
-        print("[ERROR] STEP 1: Invalid format in config file.")
-        sys.exit(1)
+    os.environ["ENV"] = "unit-tests"
+    print("[INFO] STEP 1: Setting environment variable for unit tests... DONE")
 
 def run_local_tests():
     try:
