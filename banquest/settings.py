@@ -119,11 +119,11 @@ WSGI_APPLICATION = 'banquest.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
-# Determine enviornment ['local', 'dev', 'testing']
+# Determine enviornment ['local', 'dev', 'unit-tests']
 # By default set ENV as 'local'
 ENV = os.environ.get('ENV', 'local')
 
-if ENV == 'testing':
+if ENV == 'unit-tests':
     # mock database for running tests
     DATABASES = {
         'default': {
