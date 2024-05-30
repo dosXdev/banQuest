@@ -27,7 +27,7 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       env:
-        ENV: testing
+        ENV: unit-tests
       run: |
         python manage.py makemigrations
         python manage.py migrate
